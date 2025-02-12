@@ -1,0 +1,55 @@
+name: API 測試
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+env:
+  DB_USERNAME: testHexschool
+  DB_PASSWORD: pgStartkit4test
+  DB_DATABASE: test
+  PORT: 3000
+
+jobs:
+  checkAPI:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: ${{ env.DB_USERNAME }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_DATABASE }}
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: 設定 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - name: 安裝相依套件
+        run: npm ci
+      - name: 啟動 API 伺服器
+        run: node server.js &
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USERNAME: ${{ env.DB_USERNAME }}
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
+          DB_DATABASE: ${{ env.DB_DATABASE }}
+          PORT: ${{ env.PORT }}
+      - name: 等待 API 伺服器準備就緒
+        run: |
+          echo "等待 API 伺服器啟動..."
+          sleep 5
+      - name: 測試伺服器是否正常開啟
+        run: curl -i -X OPTIONS http://localhost:${{ env.PORT }} || exit 1
