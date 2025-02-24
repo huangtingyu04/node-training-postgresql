@@ -1,56 +1,42 @@
 const { EntitySchema } = require('typeorm')
 
 module.exports = new EntitySchema({
-  name: 'Course',
-  tableName: 'COURSE',
+  name: 'CreditPurchase',
+  tableName: 'CREDIT_PURCHASE',
   columns: {
     id: {
       primary: true,
       type: 'uuid',
-      generated: 'uuid'
+      generated: 'uuid',
+      nullable: false
     },
     user_id: {
       type: 'uuid',
       nullable: false
     },
-    skill_id: {
+    credit_package_id: {
       type: 'uuid',
       nullable: false
     },
-    name: {
-      type: 'varchar',
-      length: 100,
-      nullable: false
-    },
-    description: {
-      type: 'text',
-      nullable: false
-    },
-    start_at: {
-      type: 'timestamp',
-      nullable: false
-    },
-    end_at: {
-      type: 'timestamp',
-      nullable: false
-    },
-    max_participants: {
+    purchased_credits: {
       type: 'integer',
       nullable: false
     },
-    meeting_url: {
-      type: 'varchar',
-      length: 2048,
+    price_paid: {
+      type: 'numeric',
+      precision: 10,
+      scale: 2,
       nullable: false
     },
-    created_at: {
+    createdAt: {
       type: 'timestamp',
       createDate: true,
+      name: 'created_at',
       nullable: false
     },
-    updated_at: {
+    purchaseAt: {
       type: 'timestamp',
-      updateDate: true,
+      name: 'purchase_at',
       nullable: false
     }
   },
@@ -61,16 +47,16 @@ module.exports = new EntitySchema({
       joinColumn: {
         name: 'user_id',
         referencedColumnName: 'id',
-        foreignKeyConstraintName: 'courses_user_id_fk'
+        foreignKeyConstraintName: 'credit_purchase_user_id_fk'
       }
     },
-    Skill: {
-      target: 'Skill',
+    CreditPackage: {
+      target: 'CreditPackage',
       type: 'many-to-one',
       joinColumn: {
-        name: 'skill_id',
+        name: 'credit_package_id',
         referencedColumnName: 'id',
-        foreignKeyConstraintName: 'courses_skill_id_fk'
+        foreignKeyConstraintName: 'credit_purchase_credit_package_id_fk'
       }
     }
   }
